@@ -33,6 +33,7 @@
         app:layout_editor_absoluteY="233dp" />
 
     <ImageView
+        android:id="@+id/btn_next"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:src="@drawable/next"
