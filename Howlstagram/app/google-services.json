@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "462431480568-h8fjhsst89mnvj5e5rkmoonmuq44tkff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.howlstagram",
+            "certificate_hash": "75d90d9d21e9753ca05fd79081dfff6332dabdeb"
+          }
+        },
+        {
           "client_id": "462431480568-qnh49c9jf1kdi7c82l6h5ee0dqjajars.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -36,7 +44,7 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:462431480568:android:178324848ec701f246690d",
+        "mobilesdk_app_id": "1:462431480568:android:eeaae9d4b264884a46690d",
         "android_client_info": {
           "package_name": "com.example.myapplication"
         }
