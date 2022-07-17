@@ -10,13 +10,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.howlstagram.R
 import com.example.howlstagram.navigation.model.ContentDTO
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_detail.view.*
 import kotlinx.android.synthetic.main.item_detail.view.*
+import java.text.FieldPosition
 
 class DetailViewFragment : Fragment() {
     var firestore: FirebaseFirestore? = null
+    var uid = FirebaseAuth.getInstance().currentUser?.uid
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,9 +77,44 @@ class DetailViewFragment : Fragment() {
             viewHolder.detailviewitem_favoritecounter_textview.text =
                 "Likes " + contentDTOs!![p1].favoriteCount
 
+            //This code is when the button is clicked
+            viewHolder.detailviewitem_favorite_imageview.setOnClickListener{
+                favoriteEvent(p1)
+            }
+
+            //This code is when the page is loaded
+            if(contentDTOs!![p1].favorites.containsKey(uid)){
+                //This is like status
+                viewHolder.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite)
+            }
+            else{
+                //This is unlike status
+                viewHolder.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite_border)
+            }
+
             //ProfileImage
             Glide.with(p0.itemView.context).load(contentDTOs!![p1].imageUrl)
                 .into(viewHolder.detailviewitem_profile_image)
+        }
+
+        fun favoriteEvent(position: Int){
+            var tsDoc = firestore?.collection("images")?.document(contentUidList[position])
+            firestore?.runTransaction{transaction->
+                var uid = FirebaseAuth.getInstance().currentUser?.uid
+                var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
+
+                if(contentDTO!!.favorites.containsKey(uid)){
+                    //When the button is clicked
+                    contentDTO?.favoriteCount = contentDTO?.favoriteCount - 1
+                    contentDTO?.favorites.remove(uid)
+                }
+                else{
+                    //When the button is not clicked
+                    contentDTO?.favoriteCount = contentDTO?.favoriteCount + 1
+                    contentDTO?.favorites[uid!!] = true
+                }
+                transaction.set(tsDoc,contentDTO)
+            }
         }
 
         override fun getItemCount(): Int {
