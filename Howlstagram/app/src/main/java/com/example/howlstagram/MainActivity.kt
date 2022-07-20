@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.MenuItem
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.howlstagram.navigation.*
@@ -14,10 +15,11 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.jar.Manifest
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setToolbarDefault()
         bottom_navigation.setOnItemSelectedListener { it ->
             when (it.itemId) {
                 R.id.action_home -> {
@@ -33,7 +35,11 @@ class MainActivity : AppCompatActivity(){
                     true
                 }
                 R.id.action_add_photo -> {
-                    if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                    if (ContextCompat.checkSelfPermission(
+                            this,
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
                         startActivity(Intent(this, AddPhotoActivity::class.java))
                     }
 
@@ -58,12 +64,19 @@ class MainActivity : AppCompatActivity(){
                 else -> false
             }
         }
-
-        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+            1
+        )
 
         //Set default screen
         bottom_navigation.selectedItemId = R.id.action_home
     }
 
-
+    fun setToolbarDefault() {
+        toolbar_username.visibility = View.GONE
+        toolbar_btn_back.visibility = View.GONE
+        toolbar_title_image.visibility = View.VISIBLE
+    }
 }
