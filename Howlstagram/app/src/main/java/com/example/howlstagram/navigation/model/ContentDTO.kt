@@ -13,7 +13,7 @@ data class ContentDTO(
 ) {
     data class Comment(
         var uid: String? = null,
-        val userId: String? = null,
+        var userId: String? = null,
         var comment: String? = null,
         var timestamp: Long? = null
     )
