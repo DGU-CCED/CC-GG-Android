@@ -1,5 +1,6 @@
 package com.example.howlstagram.navigation
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,7 +38,7 @@ class DetailViewFragment : Fragment() {
 
     inner class DetailViewRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         var contentDTOs: ArrayList<ContentDTO> = arrayListOf()
-        var contentUidList : ArrayList<String> = arrayListOf()
+        var contentUidList: ArrayList<String> = arrayListOf()
 
         init {
             firestore?.collection("images")?.orderBy("timestamp")
@@ -46,7 +47,7 @@ class DetailViewFragment : Fragment() {
                     contentUidList.clear()
 
                     //Sometimes, This code return null of querySnapshot when it signout
-                    if(querySnapshot == null) return@addSnapshotListener
+                    if (querySnapshot == null) return@addSnapshotListener
 
                     for (snapshot in querySnapshot!!.documents) {
                         var item = snapshot.toObject(ContentDTO::class.java)
@@ -82,27 +83,33 @@ class DetailViewFragment : Fragment() {
                 "Likes " + contentDTOs!![p1].favoriteCount
 
             //This code is when the button is clicked
-            viewHolder.detailviewitem_favorite_imageview.setOnClickListener{
+            viewHolder.detailviewitem_favorite_imageview.setOnClickListener {
                 favoriteEvent(p1)
             }
 
             //This code is when the page is loaded
-            if(contentDTOs!![p1].favorites.containsKey(uid)){
+            if (contentDTOs!![p1].favorites.containsKey(uid)) {
                 //This is like status
                 viewHolder.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite)
-            }
-            else{
+            } else {
                 //This is unlike status
                 viewHolder.detailviewitem_favorite_imageview.setImageResource(R.drawable.ic_favorite_border)
             }
 
-            viewHolder.detailviewitem_profile_image.setOnClickListener{
+            viewHolder.detailviewitem_profile_image.setOnClickListener {
                 var fragment = UserFragment()
                 var bundle = Bundle()
-                bundle.putString("destinationUid",contentDTOs[p1].uid)
-                bundle.putString("userId",contentDTOs[p1].userId)
+                bundle.putString("destinationUid", contentDTOs[p1].uid)
+                bundle.putString("userId", contentDTOs[p1].userId)
                 fragment.arguments = bundle
-                activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content, fragment)?.commit()
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.main_content, fragment)?.commit()
+            }
+
+            viewHolder.detailviewitem_comment_imageview.setOnClickListener { v ->
+                var intent = Intent(v.context,CommentActivity::class.java)
+                intent.putExtra("contentUid",contentUidList[p1])
+                startActivity(intent)
             }
 
             //ProfileImage
@@ -110,23 +117,22 @@ class DetailViewFragment : Fragment() {
                 .into(viewHolder.detailviewitem_profile_image)
         }
 
-        fun favoriteEvent(position: Int){
+        fun favoriteEvent(position: Int) {
             var tsDoc = firestore?.collection("images")?.document(contentUidList[position])
-            firestore?.runTransaction{transaction->
+            firestore?.runTransaction { transaction ->
                 var uid = FirebaseAuth.getInstance().currentUser?.uid
                 var contentDTO = transaction.get(tsDoc!!).toObject(ContentDTO::class.java)
 
-                if(contentDTO!!.favorites.containsKey(uid)){
+                if (contentDTO!!.favorites.containsKey(uid)) {
                     //When the button is clicked
                     contentDTO?.favoriteCount = contentDTO?.favoriteCount - 1
                     contentDTO?.favorites.remove(uid)
-                }
-                else{
+                } else {
                     //When the button is not clicked
                     contentDTO?.favoriteCount = contentDTO?.favoriteCount + 1
                     contentDTO?.favorites[uid!!] = true
                 }
-                transaction.set(tsDoc,contentDTO)
+                transaction.set(tsDoc, contentDTO)
             }
         }
 
