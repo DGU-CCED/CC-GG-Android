@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.howlstagram.R
+import com.example.howlstagram.navigation.model.AlarmDTO
 import com.example.howlstagram.navigation.model.ContentDTO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,11 +19,13 @@ import kotlinx.android.synthetic.main.item_comment.view.*
 
 class CommentActivity : AppCompatActivity() {
     var contentUid: String? = null
+    var destinationUid: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comment)
         contentUid = intent.getStringExtra("contentUid")
+        destinationUid = intent.getStringExtra("destinationUid")
 
         comment_recyclerview.adapter = CommentRecyclerviewAdapter()
         comment_recyclerview.layoutManager = LinearLayoutManager(this)
@@ -37,9 +40,21 @@ class CommentActivity : AppCompatActivity() {
             FirebaseFirestore.getInstance().collection("images").document(contentUid!!)
                 .collection("comments").document().set(comment)
 
+            commentAlarm(destinationUid!!, comment_edit_message.text.toString())
             comment_edit_message.setText("")
         }
     }
+
+    fun commentAlarm(destinationUid: String, message: String) {
+        var alarmDTO = AlarmDTO()
+        alarmDTO.destinationUid = destinationUid
+        alarmDTO.userId = FirebaseAuth.getInstance().currentUser?.email
+        alarmDTO.uid = FirebaseAuth.getInstance().currentUser?.uid
+        alarmDTO.timestamp = System.currentTimeMillis()
+        alarmDTO.message = message
+        FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
+    }
+
 
     inner class CommentRecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         var comments: ArrayList<ContentDTO.Comment> = arrayListOf()
@@ -50,7 +65,7 @@ class CommentActivity : AppCompatActivity() {
                 .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                     comments.clear()
                     if (querySnapshot == null) return@addSnapshotListener
-                    for(snapshot in querySnapshot.documents!!){
+                    for (snapshot in querySnapshot.documents!!) {
                         comments.add(snapshot.toObject(ContentDTO.Comment::class.java)!!)
                     }
                     notifyDataSetChanged()
@@ -58,7 +73,7 @@ class CommentActivity : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
-            var view = LayoutInflater.from(p0.context).inflate(R.layout.item_comment,p0,false)
+            var view = LayoutInflater.from(p0.context).inflate(R.layout.item_comment, p0, false)
             return CustomViewHolder(view)
         }
 
@@ -73,10 +88,12 @@ class CommentActivity : AppCompatActivity() {
                 .collection("profileImages")
                 .document(comments[p1].uid!!)
                 .get()
-                .addOnCompleteListener{ task ->
-                    if(task.isSuccessful){
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
                         var url = task.result!!["image"]
-                        Glide.with(p0.itemView.context).load(url).apply(RequestOptions().circleCrop()).into(view.commentviewitem_imageview_profile)
+                        Glide.with(p0.itemView.context).load(url)
+                            .apply(RequestOptions().circleCrop())
+                            .into(view.commentviewitem_imageview_profile)
                     }
                 }
         }
