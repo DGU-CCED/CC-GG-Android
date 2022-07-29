@@ -15,16 +15,35 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestore.getInstance
+import com.google.firebase.iid.FirebaseInstanceIdReceiver
+import com.google.firebase.iid.internal.FirebaseInstanceIdInternal
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity() {
+    fun registerPushToken(){
+        //FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener{
+        FirebaseMessaging.getInstance().token.addOnCompleteListener{
+            task ->
+            //val token = task.result?.token
+            val token = task.result
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            val map = mutableMapOf<String, Any>()
+            map["pushToken"] = token!!
+
+            FirebaseFirestore.getInstance().collection("pushtokens").document(uid!!).set(map)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setToolbarDefault()
+        registerPushToken()
         bottom_navigation.setOnItemSelectedListener { it ->
             when (it.itemId) {
                 R.id.action_home -> {
