@@ -11,6 +11,7 @@ import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.howlstagram.navigation.*
+import com.example.howlstagram.navigation.util.FcmPush
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -103,6 +104,11 @@ class MainActivity : AppCompatActivity() {
         toolbar_btn_back.visibility = View.GONE
         toolbar_title_image.visibility = View.VISIBLE
     }
+
+//    override fun onStop(){
+//        super.onStop()
+//        FcmPush.instance.sendMessage("f58X7gVTAVRhIyVpLejZqfO91zT2","hi","bye")
+//    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
