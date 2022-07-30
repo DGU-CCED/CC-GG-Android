@@ -20,6 +20,7 @@ import com.example.howlstagram.R
 import com.example.howlstagram.navigation.model.AlarmDTO
 import com.example.howlstagram.navigation.model.ContentDTO
 import com.example.howlstagram.navigation.model.FollowDTO
+import com.example.howlstagram.navigation.util.FcmPush
 import com.google.api.Distribution
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -181,6 +182,9 @@ class UserFragment : Fragment() {
         alarmDTO.kind = 2
         alarmDTO.timestamp = System.currentTimeMillis()
         FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
+
+        var message = auth?.currentUser?.email + getString(R.string.alarm_follow)
+        FcmPush.instance.sendMessage(destinationUid, "Howlstagram", message)
     }
 
     fun getProfileImage() {
